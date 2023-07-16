@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultWeightedEdge;
+
 import it.polito.tdp.yelp.model.Business;
 import it.polito.tdp.yelp.model.Model;
 import it.polito.tdp.yelp.model.Review;
@@ -21,6 +24,7 @@ import javafx.scene.control.TextArea;
 public class FXMLController {
 	
 	private Model model;
+	Graph<Review, DefaultWeightedEdge> graph;
 
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -38,7 +42,7 @@ public class FXMLController {
     private ComboBox<String> cmbCitta; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbLocale"
-    private ComboBox<Business> cmbLocale; // Value injected by FXMLLoader
+    private ComboBox<String> cmbLocale; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
@@ -48,14 +52,22 @@ public class FXMLController {
     	this.cmbLocale.getItems().clear();
     	String citta = this.cmbCitta.getValue();
     	if(citta != null) {
-    		//TODO popolare la tendina dei locali per la città selezionata
-    		
+    		this.cmbLocale.getItems().addAll(this.model.getLocaliCommerciali(citta));
     	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	txtResult.clear();
     	
+    	this.graph = this.model.creaGrafo(this.cmbLocale.getValue());
+    	
+    	txtResult.appendText("#VERTICI: "+this.graph.vertexSet().size()+ "\n"+ "#ARCHI: "+ this.graph.edgeSet().size()+"\n");
+    	
+    	
+    	for(Review r : this.model.archiUscenti()) {
+    		txtResult.appendText(r.getReviewId()+" #ARCHI USCENTI: "+this.graph.outDegreeOf(r));
+    	}
     }
 
     @FXML
@@ -75,5 +87,8 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	for(String s: this.model.getCities()) {
+    		this.cmbCitta.getItems().add(s);
+    	}
     }
 }

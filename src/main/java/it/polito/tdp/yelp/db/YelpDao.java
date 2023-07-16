@@ -111,7 +111,115 @@ public class YelpDao {
 		}
 	}
 	
+	public List<String> getCities(){
+		String sql = "SELECT DISTINCT b.city as city "
+				+ "FROM business b "
+				+ "ORDER BY b.city ASC ";
+		List<String> result = new ArrayList<String>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				result.add(res.getString("city"));
+			}
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 	
+	public List<String> getLocaliCommerciali(String città){
+		String sql = "SELECT DISTINCT b.business_name as name "
+				+ "FROM business b "
+				+ "WHERE b.`city`=? ";
+		List<String> result = new ArrayList<String>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, città);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				result.add(res.getString("name"));
+			}
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public String getBusinessId(String name) {
+		String sql = "SELECT b.`business_id` as id "
+				+ "FROM business b "
+				+ "WHERE b.`business_name`=? ";
+		
+		String result = "";
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, name);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				result=res.getString("id");
+			}
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public List<Review> getReviews(String businessId){
+		String sql = "SELECT DISTINCT r.* "
+				+ "FROM reviews r "
+				+ "WHERE r.`business_id`=? ";
+		List<Review> result = new ArrayList<Review>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, businessId);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+
+				Review review = new Review(res.getString("review_id"), 
+						res.getString("business_id"),
+						res.getString("user_id"),
+						res.getDouble("stars"),
+						res.getDate("review_date").toLocalDate(),
+						res.getInt("votes_funny"),
+						res.getInt("votes_useful"),
+						res.getInt("votes_cool"),
+						res.getString("review_text"));
+				result.add(review);
+			}
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 	
 	
 }
